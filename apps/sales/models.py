@@ -65,3 +65,28 @@ class Demand(models.Model):
 
     def __str__(self):
         return f"求购: {self.medicine_name}"
+
+
+class PriceHistory(models.Model):
+    """价格历史模型。"""
+    medicine_name = models.CharField(max_length=100, verbose_name='药材名称')
+    specification = models.CharField(max_length=200, blank=True, null=True, verbose_name='规格')
+    origin = models.CharField(max_length=200, blank=True, null=True, verbose_name='产地')
+    date = models.DateField(verbose_name='日期')
+    # 市场价格字段
+    bozhou_price = models.CharField(max_length=50, blank=True, null=True, verbose_name='亳州价格')
+    angui_price = models.CharField(max_length=50, blank=True, null=True, verbose_name='安国价格')
+    chengdu_price = models.CharField(max_length=50, blank=True, null=True, verbose_name='成都价格')
+    yulin_price = models.CharField(max_length=50, blank=True, null=True, verbose_name='玉林价格')
+    lianqiao_price = models.CharField(max_length=50, blank=True, null=True, verbose_name='廉桥价格')
+    puning_price = models.CharField(max_length=50, blank=True, null=True, verbose_name='普宁价格')
+    supply = models.ForeignKey('Supply', on_delete=models.CASCADE, related_name='price_histories', null=True, blank=True, verbose_name='供应信息')
+    created_at = models.DateTimeField(default=timezone.now, verbose_name='创建时间')
+
+    class Meta:
+        verbose_name = '价格历史'
+        verbose_name_plural = '价格历史'
+        unique_together = ('medicine_name', 'specification', 'origin', 'date')
+
+    def __str__(self):
+        return f"{self.medicine_name} - {self.specification} - {self.date}"

@@ -29,9 +29,7 @@
     {% if need_load_data %}
     <div id="loading-alert" class="alert alert-info alert-dismissible fade show mb-4" role="alert">
         <strong>数据加载中</strong> 系统正在后台加载今日价格数据，请稍候...
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     {% endif %}
     
@@ -70,7 +68,15 @@
                             <td>{{ supply.yulin_price|default:'--' }}</td>
                             <td>{{ supply.lianqiao_price|default:'--' }}</td>
                             <td>{{ supply.puning_price|default:'--' }}</td>
-                            <td><a href="#" class="text-danger"><i class="fas fa-chart-line"></i></a></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-danger view-history" 
+                                        data-medicine="{{ supply.medicine_name }}"
+                                        data-specification="{{ supply.specification|default:'' }}"
+                                        data-origin="{{ supply.origin|default:'' }}" 
+                                        title="查看历史价格">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -148,6 +154,41 @@
         </div>
     </div>
 </div>
+
+    <!-- 价格历史折线图模态框 -->
+    <div class="modal fade" id="priceHistoryModal" tabindex="-1" aria-labelledby="priceHistoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="priceHistoryModalLabel">价格历史折线图</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="marketSelect" class="form-label">选择市场：</label>
+                        <select class="form-select" id="marketSelect">
+                            <option value="bozhou">亳州</option>
+                            <option value="angui">安国</option>
+                            <option value="chengdu">成都</option>
+                            <option value="yulin">玉林</option>
+                            <option value="lianqiao">廉桥</option>
+                            <option value="puning">普宁</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <canvas id="priceHistoryChart" height="300"></canvas>
+                    </div>
+                    <div id="noDataMessage" class="alert alert-info d-none">
+                        暂无历史价格数据
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_css %}
@@ -192,7 +233,143 @@
         });
         {% endif %}
         
-        // 移除历史价格折线图功能
+        // 价格历史折线图功能
+        let priceChart = null;
+        let currentMedicine = '';
+        let currentSpecification = '';
+        let currentOrigin = '';
+        
+        // 查看历史价格按钮点击事件
+        $('.view-history').on('click', function() {
+            currentMedicine = $(this).data('medicine');
+            currentSpecification = $(this).data('specification');
+            currentOrigin = $(this).data('origin');
+            
+            // 更新模态框标题
+            $('#priceHistoryModalLabel').text(`${currentMedicine} - ${currentSpecification} - ${currentOrigin} 价格历史`);
+            
+            // 显示模态框
+            $('#priceHistoryModal').modal('show');
+            
+            // 加载价格历史数据
+            loadPriceHistory('bozhou');
+        });
+        
+        // 市场选择变化事件
+        $('#marketSelect').on('change', function() {
+            const market = $(this).val();
+            loadPriceHistory(market);
+        });
+        
+        // 加载价格历史数据
+        function loadPriceHistory(market) {
+            $.ajax({
+                url: '{% url "sales:get_price_history" %}',
+                type: 'GET',
+                data: {
+                    medicine_name: currentMedicine,
+                    specification: currentSpecification,
+                    origin: currentOrigin,
+                    market: market
+                },
+                success: function(response) {
+                    if (response.dates && response.dates.length > 0) {
+                        // 显示图表，隐藏无数据提示
+                        $('#priceHistoryChart').removeClass('d-none');
+                        $('#noDataMessage').addClass('d-none');
+                        
+                        // 绘制折线图
+                        drawPriceChart(response);
+                    } else {
+                        // 隐藏图表，显示无数据提示
+                        $('#priceHistoryChart').addClass('d-none');
+                        $('#noDataMessage').removeClass('d-none');
+                    }
+                },
+                error: function() {
+                    alert('加载价格历史数据失败');
+                }
+            });
+        }
+        
+        // 绘制价格折线图
+        function drawPriceChart(data) {
+            const ctx = document.getElementById('priceHistoryChart').getContext('2d');
+            
+            // 销毁旧图表
+            if (priceChart) {
+                priceChart.destroy();
+            }
+            
+            // 过滤掉价格为null的数据点
+            const filteredDates = [];
+            const filteredPrices = [];
+            
+            for (let i = 0; i < data.dates.length; i++) {
+                if (data.prices[i] !== null) {
+                    filteredDates.push(data.dates[i]);
+                    filteredPrices.push(data.prices[i]);
+                }
+            }
+            
+            // 获取市场名称
+            const marketNames = {
+                'bozhou': '亳州',
+                'angui': '安国',
+                'chengdu': '成都',
+                'yulin': '玉林',
+                'lianqiao': '廉桥',
+                'puning': '普宁'
+            };
+            
+            const marketName = marketNames[data.market] || data.market;
+            
+            // 创建新图表
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: filteredDates,
+                    datasets: [{
+                        label: `${marketName}市场价格 (元/千克)`,
+                        data: filteredPrices,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: '价格 (元/千克)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '日期'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `${data.medicine_name} - ${data.specification} - ${data.origin} 价格历史`
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    }
+                }
+            });
+        }
     });
 </script>
 {% endblock %}

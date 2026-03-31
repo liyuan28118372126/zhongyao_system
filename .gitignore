@@ -27,3 +27,7 @@ staticfiles/
 # OS
 .DS_Store
 Thumbs.db
+
+# Price data files
+中药价格数据/
+last_update_record.json

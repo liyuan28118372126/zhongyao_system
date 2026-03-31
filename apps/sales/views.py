@@ -409,3 +409,56 @@ def delete_demand(request, pk):
         demand.delete()
     
     return redirect('account:profile')
+
+
+def get_price_history(request):
+    """获取价格历史数据。"""
+    import json
+    from django.http import JsonResponse
+    
+    medicine_name = request.GET.get('medicine_name')
+    specification = request.GET.get('specification')
+    origin = request.GET.get('origin')
+    market = request.GET.get('market', 'bozhou')  # 默认亳州市场
+    
+    if not medicine_name or not specification or not origin:
+        return JsonResponse({'error': '缺少必要参数'}, status=400)
+    
+    try:
+        from .models import PriceHistory
+        
+        # 获取价格历史数据
+        history = PriceHistory.objects.filter(
+            medicine_name=medicine_name,
+            specification=specification,
+            origin=origin
+        ).order_by('date')
+        
+        # 准备数据
+        dates = []
+        prices = []
+        
+        for item in history:
+            dates.append(item.date.strftime('%Y-%m-%d'))
+            # 根据市场获取价格
+            price_field = f'{market}_price'
+            price_str = getattr(item, price_field, '无')
+            
+            # 提取价格数字
+            import re
+            price_match = re.search(r'\d+(\.\d+)?', str(price_str))
+            if price_match:
+                prices.append(float(price_match.group()))
+            else:
+                prices.append(None)
+        
+        return JsonResponse({
+            'dates': dates,
+            'prices': prices,
+            'medicine_name': medicine_name,
+            'specification': specification,
+            'origin': origin,
+            'market': market
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

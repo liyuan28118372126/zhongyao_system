@@ -19,4 +19,5 @@ urlpatterns = [
     path('demand/<int:pk>/delete/', views.delete_demand, name='delete_demand'),
     path('price/list/', views.price_list, name='price_list'),
     path('price/load/', views.load_price_data, name='load_price_data'),
+    path('price/history/', views.get_price_history, name='get_price_history'),
 ]
