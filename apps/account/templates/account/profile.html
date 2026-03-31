@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}个人中心 - 中药系统{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-5 text-center text-success font-weight-bold">个人中心</h2>
+    
+    <!-- 用户信息 -->
+    <div class="card mb-5 shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h3 class="mb-0">个人信息</h3>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-3 text-center">
+                    {% if profile and profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="头像" class="img-fluid rounded-circle border border-3 border-success" style="max-width: 180px;">
+                    {% else %}
+                        <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 180px; height: 180px;">
+                            <span class="text-success display-4">{{ user.username|first|upper }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-9">
+                    <h4 class="text-success mb-3">{{ user.username }}</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-2"><strong>邮箱：</strong>{{ user.email }}</p>
+                            {% if profile %}
+                                {% if profile.phone_number %}
+                                    <p class="mb-2"><strong>联系电话：</strong>{{ profile.phone_number }}</p>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {% if profile and profile.bio %}
+                                <p class="mb-2"><strong>个人简介：</strong>{{ profile.bio }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{% url 'account:edit_profile' %}" class="btn btn-success btn-lg px-4">编辑个人信息</a>
+                        {% if user.is_superuser %}
+                            <a href="/admin/" class="btn btn-primary btn-lg px-4 ml-3">后台管理</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 我的供应信息 -->
+    <div class="card mb-5 shadow-sm">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">我的供应信息</h3>
+            <a href="{% url 'sales:create_supply' %}" class="btn btn-light btn-sm">发布供应</a>
+        </div>
+        <div class="card-body">
+            {% if supplies %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="bg-success text-white">
+                            <tr>
+                                <th>药材名称</th>
+                                <th>规格</th>
+                                <th>价格</th>
+                                <th>发布时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for supply in supplies %}
+                                <tr>
+                                    <td>{{ supply.medicine_name }}</td>
+                                    <td>{{ supply.specification|default:'-' }}</td>
+                                    <td>{{ supply.price|default:'-' }}</td>
+                                    <td>{{ supply.created_at|date:'Y-m-d H:i' }}</td>
+                                    <td>
+                                        <a href="{% url 'sales:supply_detail' supply.id %}" class="btn btn-info btn-sm">查看</a>
+                                        <a href="{% url 'sales:update_supply' supply.id %}" class="btn btn-primary btn-sm ml-2">编辑</a>
+                                        <a href="{% url 'sales:delete_supply' supply.id %}" class="btn btn-danger btn-sm ml-2" onclick="return confirm('确定要删除吗？');">删除</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <p class="text-muted">您还没有发布供应信息</p>
+                    <a href="{% url 'sales:create_supply' %}" class="btn btn-success mt-2">发布第一条供应信息</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- 我的求购信息 -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">我的求购信息</h3>
+            <a href="{% url 'sales:create_demand' %}" class="btn btn-light btn-sm">发布求购</a>
+        </div>
+        <div class="card-body">
+            {% if demands %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="bg-success text-white">
+                            <tr>
+                                <th>药材名称</th>
+                                <th>规格</th>
+                                <th>价格</th>
+                                <th>发布时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for demand in demands %}
+                                <tr>
+                                    <td>{{ demand.medicine_name }}</td>
+                                    <td>{{ demand.specification|default:'-' }}</td>
+                                    <td>{{ demand.price|default:'-' }}</td>
+                                    <td>{{ demand.created_at|date:'Y-m-d H:i' }}</td>
+                                    <td>
+                                        <a href="{% url 'sales:demand_detail' demand.id %}" class="btn btn-info btn-sm">查看</a>
+                                        <a href="{% url 'sales:update_demand' demand.id %}" class="btn btn-primary btn-sm ml-2">编辑</a>
+                                        <a href="{% url 'sales:delete_demand' demand.id %}" class="btn btn-danger btn-sm ml-2" onclick="return confirm('确定要删除吗？');">删除</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <p class="text-muted">您还没有发布求购信息</p>
+                    <a href="{% url 'sales:create_demand' %}" class="btn btn-success mt-2">发布第一条求购信息</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 0.5rem;
+    }
+    .card-header {
+        border-radius: 0.5rem 0.5rem 0 0;
+    }
+    h2 {
+        font-size: 1.8rem;
+    }
+    .btn {
+        border-radius: 0.375rem;
+    }
+    .table {
+        border-radius: 0.375rem;
+        overflow: hidden;
+    }
+    .table th {
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}中药系统 - 国家权威认证全类型医药信息查询平台{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    {% load static %}
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar bg-light py-1">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <small class="text-muted">国家权威认证全类型医药信息查询平台</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User authentication status -->
+    <div id="user-auth-status" style="display: none;" data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"></div>
+
+    <!-- Main Header with Logo -->
+    <header class="main-header py-3">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <a href="{% url 'medicine:index' %}" class="text-decoration-none">
+                        <div class="logo">
+                            <i class="fas fa-mortar-pestle text-success fa-2x me-2"></i>
+                            <span class="h3 text-success fw-bold mb-0">中药系统</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-9">
+                    <div class="header-search">
+                        <form action="{% url 'medicine:search' %}" method="GET" class="d-flex">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" name="q" class="form-control border-start-0" placeholder="搜索药品、疾病、症状、方剂..." value="{{ request.GET.q }}">
+                                <button class="btn btn-success" type="submit">搜索</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success" style="z-index: 1000;">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'medicine:index' %}">
+                            <i class="fas fa-home me-1"></i>首页
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-leaf me-1"></i>中药材
+                        </a>
+                        <ul class="dropdown-menu" style="z-index: 1001;">
+                            <li><a class="dropdown-item" href="{% url 'medicine:medicine_list' %}">药材列表</a></li>
+                            <li><a class="dropdown-item" href="{% url 'medicine:prescription_list' %}">方剂列表</a></li>
+                            <li><a class="dropdown-item" href="{% url 'medicine:dietary_therapy_list' %}">药膳食疗</a></li>
+                            <li><a class="dropdown-item" href="{% url 'medicine:acupuncture_point_list' %}">针灸穴位</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'image_recognition:recognize' %}">
+                            <i class="fas fa-camera me-1"></i>图像识别
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'sales:index' %}" id="sales-link">
+                            <i class="fas fa-shopping-cart me-1"></i>药材销售
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'news:news_list' %}">
+                            <i class="fas fa-newspaper me-1"></i>药闻
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'llm_qa:ask_question' %}">
+                            <i class="fas fa-robot me-1"></i>大模型答疑
+                        </a>
+                    </li>
+                </ul>
+                {% if user.is_authenticated %}
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>{{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" style="z-index: 1001;">
+                            <li><a class="dropdown-item" href="{% url 'account:profile' %}">个人中心</a></li>
+                            {% if user.is_superuser %}
+                            <li><a class="dropdown-item" href="/admin/">后台管理</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'account:logout' %}">注销</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                {% else %}
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'account:login' %}">登录</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'account:signup' %}">注册</a>
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5 class="mb-3">关于我们</h5>
+                    <p class="small text-muted">中药系统是国家权威认证的全类型医药信息查询平台，提供中药材、方剂、疾病、症状等全方位医药信息服务。</p>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="mb-3">快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'medicine:medicine_list' %}" class="text-decoration-none text-muted">中药材查询</a></li>
+                        <li><a href="{% url 'medicine:prescription_list' %}" class="text-decoration-none text-muted">方剂查询</a></li>
+                        <li><a href="{% url 'image_recognition:recognize' %}" class="text-decoration-none text-muted">图像识别</a></li>
+                        <li><a href="{% url 'llm_qa:ask_question' %}" class="text-decoration-none text-muted">智能问答</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="mb-3">联系我们</h5>
+                    <p class="small text-muted">
+                        <i class="fas fa-envelope me-2"></i>contact@zhongyao.com<br>
+                        <i class="fas fa-phone me-2"></i>400-123-4567<br>
+                        <i class="fas fa-map-marker-alt me-2"></i>北京市朝阳区
+                    </p>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <p class="small text-muted mb-0">© 2026 中药系统. All rights reserved. | 国家权威认证全类型医药信息查询平台</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">用户登录</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{% url 'account:login' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" id="login-next" value="">
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">用户名</label>
+                            <input type="text" name="username" class="form-control" id="id_username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label">密码</label>
+                            <input type="password" name="password" class="form-control" id="id_password" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember">
+                            <label class="form-check-label" for="remember">记住我</label>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success w-100">登录</button>
+                        </div>
+                    </form>
+                    <div class="text-center mt-3">
+                        <p class="mb-0">还没有账号？<a href="{% url 'account:signup' %}" class="text-decoration-none">立即注册</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{% static 'js/main.js' %}?v=2.0"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+
+{% block title %}供应信息 - 中药系统{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-between align-items-center mb-4">
+        <div class="col">
+            <h2><i class="fas fa-box-open text-success me-2"></i>供应信息</h2>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'sales:create_supply' %}" class="btn btn-success">
+                <i class="fas fa-plus-circle me-2"></i>发布供应
+            </a>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'sales:index' %}" class="btn btn-outline-success">
+                <i class="fas fa-arrow-left me-2"></i>返回首页
+            </a>
+        </div>
+    </div>
+    
+    <!-- 价格表格区域 -->
+    <div class="card mb-4 border-success">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">价格信息</h5>
+            <div class="nav nav-tabs card-header-tabs" id="priceTabs" role="tablist">
+                <button class="nav-link active" id="today-tab" data-bs-toggle="tab" data-bs-target="#today" type="button" role="tab" aria-controls="today" aria-selected="true">今日价格</button>
+                <button class="nav-link" id="market-tab" data-bs-toggle="tab" data-bs-target="#market" type="button" role="tab" aria-controls="market" aria-selected="false">市场价格</button>
+                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">历史价格</button>
+                <button class="nav-link" id="trend-tab" data-bs-toggle="tab" data-bs-target="#trend" type="button" role="tab" aria-controls="trend" aria-selected="false">价格涨跌</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="priceTabsContent">
+                <!-- 今日价格表格 -->
+                <div class="tab-pane fade show active" id="today" role="tabpanel" aria-labelledby="today-tab">
+                    {% if today_supplies %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-success">
+                                <tr>
+                                    <th>品名</th>
+                                    <th>规格</th>
+                                    <th>产地</th>
+                                    <th>亳州</th>
+                                    <th>安国</th>
+                                    <th>成都</th>
+                                    <th>玉林</th>
+                                    <th>廉桥</th>
+                                    <th>普宁</th>
+                                    <th>历史</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for supply in today_supplies|slice:':20' %}
+                                <tr>
+                                    <td>{{ supply.medicine_name }}</td>
+                                    <td>{{ supply.specification|default:'无' }}</td>
+                                    <td>{{ supply.origin|default:'无' }}</td>
+                                    <td>{{ supply.bozhou_price|default:'--' }}</td>
+                                    <td>{{ supply.angui_price|default:'--' }}</td>
+                                    <td>{{ supply.chengdu_price|default:'--' }}</td>
+                                    <td>{{ supply.yulin_price|default:'--' }}</td>
+                                    <td>{{ supply.lianqiao_price|default:'--' }}</td>
+                                    <td>{{ supply.puning_price|default:'--' }}</td>
+                                    <td><i class="fas fa-chart-line text-danger"></i></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                        <div class="alert alert-info">暂无今日价格数据</div>
+                        {% endif %}
+                        {% if today_supplies.count > 20 %}
+                        <div class="mt-3 text-center">
+                            <a href="{% url 'sales:price_list' %}" class="btn btn-success">查看更多</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                
+                <!-- 市场价格表格 -->
+                <div class="tab-pane fade" id="market" role="tabpanel" aria-labelledby="market-tab">
+                    <div class="alert alert-info">市场价格数据正在更新中...</div>
+                </div>
+                
+                <!-- 历史价格表格 -->
+                <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+                    {% if today_supplies %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-success">
+                                <tr>
+                                    <th>品名</th>
+                                    <th>规格</th>
+                                    <th>产地</th>
+                                    <th>亳州</th>
+                                    <th>安国</th>
+                                    <th>成都</th>
+                                    <th>玉林</th>
+                                    <th>廉桥</th>
+                                    <th>普宁</th>
+                                    <th>历史</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for supply in today_supplies|slice:':20' %}
+                                <tr>
+                                    <td>{{ supply.medicine_name }}</td>
+                                    <td>{{ supply.specification|default:'无' }}</td>
+                                    <td>{{ supply.origin|default:'无' }}</td>
+                                    <td>{{ supply.bozhou_price|default:'--' }}</td>
+                                    <td>{{ supply.angui_price|default:'--' }}</td>
+                                    <td>{{ supply.chengdu_price|default:'--' }}</td>
+                                    <td>{{ supply.yulin_price|default:'--' }}</td>
+                                    <td>{{ supply.lianqiao_price|default:'--' }}</td>
+                                    <td>{{ supply.puning_price|default:'--' }}</td>
+                                    <td><a href="#" class="text-danger"><i class="fas fa-chart-line"></i></a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                        <div class="alert alert-info">暂无历史价格数据</div>
+                        {% endif %}
+                        {% if today_supplies.count > 20 %}
+                        <div class="mt-3 text-center">
+                            <a href="{% url 'sales:price_list' %}" class="btn btn-success">查看更多</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                
+                <!-- 价格涨跌表格 -->
+                <div class="tab-pane fade" id="trend" role="tabpanel" aria-labelledby="trend-tab">
+                    <div class="alert alert-info">价格涨跌数据正在更新中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 搜索筛选区域 -->
+    <div class="card mb-4 border">
+        <div class="card-body">
+            <form action="{% url 'sales:supply_list' %}" method="GET" class="form">
+                <!-- 品种筛选 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>品种：</strong></label>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for letter in 'ABCDEFGHJKLMNOPQRSTWXYZ' %}
+                        <a href="?letter={{ letter }}{% if stock_location %}&stock_location={{ stock_location }}{% endif %}{% if origin %}&origin={{ origin }}{% endif %}{% if price_type %}&price_type={{ price_type }}{% endif %}{% if invoice_type %}&invoice_type={{ invoice_type }}{% endif %}{% if standard %}&standard={{ standard }}{% endif %}{% if goods_type %}&goods_type={{ goods_type }}{% endif %}" class="btn btn-sm {% if request.GET.letter == letter %}btn-success{% else %}btn-outline-secondary{% endif %}">{{ letter }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- 搜索框 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>搜索：</strong></label>
+                    <div class="d-flex gap-2">
+                        <input type="text" name="q" class="form-control flex-grow-1" placeholder="输入药材品名" value="{{ search_query }}">
+                        <input type="text" name="spec" class="form-control flex-grow-1" placeholder="输入药材规格" value="{{ spec }}">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 库存地筛选 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>库存地：</strong></label>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for province in provinces %}
+                        <a href="?stock_location={{ province }}{% if search_query %}&q={{ search_query }}{% endif %}{% if spec %}&spec={{ spec }}{% endif %}{% if origin %}&origin={{ origin }}{% endif %}{% if price_type %}&price_type={{ price_type }}{% endif %}{% if invoice_type %}&invoice_type={{ invoice_type }}{% endif %}{% if standard %}&standard={{ standard }}{% endif %}{% if goods_type %}&goods_type={{ goods_type }}{% endif %}" class="btn btn-sm {% if stock_location == province %}btn-success{% else %}btn-outline-secondary{% endif %}">{{ province }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- 产地筛选 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>产地：</strong></label>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for province in provinces %}
+                        <a href="?origin={{ province }}{% if search_query %}&q={{ search_query }}{% endif %}{% if spec %}&spec={{ spec }}{% endif %}{% if stock_location %}&stock_location={{ stock_location }}{% endif %}{% if price_type %}&price_type={{ price_type }}{% endif %}{% if invoice_type %}&invoice_type={{ invoice_type }}{% endif %}{% if standard %}&standard={{ standard }}{% endif %}{% if goods_type %}&goods_type={{ goods_type }}{% endif %}" class="btn btn-sm {% if origin == province %}btn-success{% else %}btn-outline-secondary{% endif %}">{{ province }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- 价格类型筛选 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>价格：</strong></label>
+                    <div class="d-flex gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="price_type" id="price_negotiated" value="negotiated" {% if price_type == 'negotiated' %}checked{% endif %}>
+                            <label class="form-check-label" for="price_negotiated">电议</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="price_type" id="price_quoted" value="quoted" {% if price_type == 'quoted' %}checked{% endif %}>
+                            <label class="form-check-label" for="price_quoted">有报价</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 票据类型筛选 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>票据：</strong></label>
+                    <div class="d-flex flex-wrap gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="invoice_type" id="invoice_none" value="不提供票据" {% if invoice_type == '不提供票据' %}checked{% endif %}>
+                            <label class="form-check-label" for="invoice_none">不提供票据</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="invoice_type" id="invoice_invoice" value="发票" {% if invoice_type == '发票' %}checked{% endif %}>
+                            <label class="form-check-label" for="invoice_invoice">发票</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="invoice_type" id="invoice_purchase" value="收购手续" {% if invoice_type == '收购手续' %}checked{% endif %}>
+                            <label class="form-check-label" for="invoice_purchase">收购手续</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="invoice_type" id="invoice_both" value="发票或收购手续" {% if invoice_type == '发票或收购手续' %}checked{% endif %}>
+                            <label class="form-check-label" for="invoice_both">发票或收购手续</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 标准筛选 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>标准：</strong></label>
+                    <div class="d-flex flex-wrap gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="standard" id="standard_undetermined" value="待确定" {% if standard == '待确定' %}checked{% endif %}>
+                            <label class="form-check-label" for="standard_undetermined">待确定</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="standard" id="standard_export_pharmacopoeia" value="达到出口标准和药典标准" {% if standard == '达到出口标准和药典标准' %}checked{% endif %}>
+                            <label class="form-check-label" for="standard_export_pharmacopoeia">达到出口标准和药典标准</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="standard" id="standard_export" value="达到出口标准" {% if standard == '达到出口标准' %}checked{% endif %}>
+                            <label class="form-check-label" for="standard_export">达到出口标准</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="standard" id="standard_provincial" value="达到省标" {% if standard == '达到省标' %}checked{% endif %}>
+                            <label class="form-check-label" for="standard_provincial">达到省标</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="standard" id="standard_pharmacopoeia" value="达到药典标准" {% if standard == '达到药典标准' %}checked{% endif %}>
+                            <label class="form-check-label" for="standard_pharmacopoeia">达到药典标准</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 类型筛选 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>类型：</strong></label>
+                    <div class="d-flex gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="goods_type" id="type_origin" value="产地货" {% if goods_type == '产地货' %}checked{% endif %}>
+                            <label class="form-check-label" for="type_origin">产地货</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="goods_type" id="type_spot" value="现货" {% if goods_type == '现货' %}checked{% endif %}>
+                            <label class="form-check-label" for="type_spot">现货</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'sales:supply_list' %}" class="btn btn-outline-secondary">重置</a>
+                    <button type="submit" class="btn btn-success">筛选</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    {% if supplies %}
+    <div class="row g-4">
+        {% for supply in supplies %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-effect">
+                <div class="card-body">
+                    <h5 class="card-title">{{ supply.medicine_name }}</h5>
+                    {% if supply.specification %}
+                    <p class="card-text small text-muted">{{ supply.specification }}</p>
+                    {% endif %}
+                    <div class="mb-2">
+                        <span class="text-success font-weight-bold">价格：</span>{{ supply.price }}
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">数量：</span>{{ supply.quantity }}
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">产地：</span>{{ supply.origin|default:'未知' }}
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-muted">联系人：</span>{{ supply.contact_name|default:'未知' }}
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'sales:supply_detail' supply.id %}" class="btn btn-success">
+                            <i class="fas fa-info-circle me-2"></i>查看详情
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">暂无供应信息</div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hover-effect:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+    }
+</style>
+{% endblock %}

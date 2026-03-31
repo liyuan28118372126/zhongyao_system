@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ supply.medicine_name }} - 供应信息 - 中药系统{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-box-open text-success me-2"></i>供应信息详情</h2>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'sales:supply_list' %}" class="btn btn-outline-success">
+                <i class="fas fa-arrow-left me-2"></i>返回列表
+            </a>
+        </div>
+    </div>
+    
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <h3 class="card-title mb-3">{{ supply.medicine_name }}</h3>
+            
+            <div class="row mb-4">
+                <!-- 标签1：规格 -->
+                <div class="col-md-6 mb-3">
+                    <h5 class="text-muted">规格</h5>
+                    <p>{{ supply.specification|default:'未知' }}</p>
+                </div>
+                
+                <!-- 标签2：供应数量 -->
+                <div class="col-md-6 mb-3">
+                    <h5 class="text-muted">供应数量</h5>
+                    <p>{{ supply.quantity|default:'未知' }}</p>
+                </div>
+                
+                <!-- 标签3：药材库存 -->
+                <div class="col-md-6 mb-3">
+                    <h5 class="text-muted">药材库存</h5>
+                    <p>{{ supply.location|default:'未知' }}</p>
+                </div>
+                
+                <!-- 标签4：药材产地 -->
+                <div class="col-md-6 mb-3">
+                    <h5 class="text-muted">药材产地</h5>
+                    <p>{{ supply.origin|default:'未知' }}</p>
+                </div>
+                
+                <!-- 标签5：票据需求 -->
+                <div class="col-md-6 mb-3">
+                    <h5 class="text-muted">票据需求</h5>
+                    <p>{{ supply.invoice_requirement|default:'未知' }}</p>
+                </div>
+                
+                <!-- 标签6：质量需求 -->
+                <div class="col-md-6 mb-3">
+                    <h5 class="text-muted">质量需求</h5>
+                    <p>{{ supply.quality_requirement|default:'未知' }}</p>
+                </div>
+                
+                <!-- 标签7：资质要求 -->
+                <div class="col-md-6 mb-3">
+                    <h5 class="text-muted">资质要求</h5>
+                    <p>{{ supply.qualification_requirement|default:'未知' }}</p>
+                </div>
+                
+                <!-- 标签8：寄样 -->
+                <div class="col-md-6 mb-3">
+                    <h5 class="text-muted">寄样</h5>
+                    <p>{{ supply.sample|default:'未知' }}</p>
+                </div>
+                
+                <!-- 标签9：付款 -->
+                <div class="col-md-6 mb-3">
+                    <h5 class="text-muted">付款</h5>
+                    <p>{{ supply.payment|default:'未知' }}</p>
+                </div>
+                
+                <!-- 标签10：包装 -->
+                <div class="col-md-6 mb-3">
+                    <h5 class="text-muted">包装</h5>
+                    <p>{{ supply.packaging|default:'未知' }}</p>
+                </div>
+                
+                <!-- 标签11：联系电话 -->
+                <div class="col-md-6 mb-3">
+                    <h5 class="text-muted">联系电话</h5>
+                    <p>{{ supply.contact_phone|default:'未知' }}</p>
+                </div>
+                
+                <!-- 标签12：联系人 -->
+                <div class="col-md-6 mb-3">
+                    <h5 class="text-muted">联系人</h5>
+                    <p>{{ supply.contact_name|default:'未知' }}</p>
+                </div>
+                
+                <!-- 标签13：更新时间 -->
+                <div class="col-md-6 mb-3">
+                    <h5 class="text-muted">更新时间</h5>
+                    <p>{{ supply.update_time|default:'未知' }}</p>
+                </div>
+                
+                <!-- 标签14：售价 -->
+                <div class="col-md-6 mb-3">
+                    <h5 class="text-muted">售价</h5>
+                    <p class="text-success font-weight-bold">{{ supply.price|default:'未知' }}</p>
+                </div>
+                
+                <!-- 标签15：起售量 -->
+                <div class="col-md-6 mb-3">
+                    <h5 class="text-muted">起售量</h5>
+                    <p>{{ supply.minimum_order|default:'未知' }}</p>
+                </div>
+                
+                <!-- 标签16：规格 -->
+                <div class="col-md-12 mb-3">
+                    <h5 class="text-muted">规格</h5>
+                    <p>{{ supply.specification|default:'未知' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 该商家的其他供应 -->
+    {% if other_supplies %}
+    <div class="card shadow mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-store me-2"></i>该商家的其他供应</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>品名</th>
+                            <th>规格</th>
+                            <th>供应量</th>
+                            <th>售价</th>
+                            <th>药材产地</th>
+                            <th>库存地</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for other in other_supplies %}
+                        <tr>
+                            <td>{{ other.medicine_name }}</td>
+                            <td>{{ other.specification|default:'-' }}</td>
+                            <td>{{ other.quantity|default:'-' }}</td>
+                            <td class="text-success">{{ other.price|default:'-' }}</td>
+                            <td>{{ other.origin|default:'-' }}</td>
+                            <td>{{ other.location|default:'-' }}</td>
+                            <td>
+                                <a href="{% url 'sales:supply_detail' other.pk %}" class="btn btn-sm btn-outline-success">查看</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- 相关供应 -->
+    {% if related_supplies %}
+    <div class="card shadow">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-link me-2"></i>相关供应</h5>
+            <a href="{% url 'sales:supply_list' %}?q={{ supply.medicine_name }}" class="btn btn-sm btn-light text-success">
+                更多"{{ supply.medicine_name }}"供应 <i class="fas fa-angle-right ms-1"></i>
+            </a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>品名</th>
+                            <th>规格</th>
+                            <th>供应量</th>
+                            <th>售价</th>
+                            <th>药材产地</th>
+                            <th>库存地</th>
+                            <th>联系人</th>
+                            <th>联系电话</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for related in related_supplies %}
+                        <tr>
+                            <td>{{ related.medicine_name }}</td>
+                            <td>{{ related.specification|default:'-' }}</td>
+                            <td>{{ related.quantity|default:'-' }}</td>
+                            <td class="text-success">{{ related.price|default:'-' }}</td>
+                            <td>{{ related.origin|default:'-' }}</td>
+                            <td>{{ related.location|default:'-' }}</td>
+                            <td>{{ related.contact_name|default:'-' }}</td>
+                            <td>{{ related.contact_phone|default:'-' }}</td>
+                            <td>
+                                <a href="{% url 'sales:supply_detail' related.pk %}" class="btn btn-sm btn-outline-success">查看</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

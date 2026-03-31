@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}登录 - 中药系统{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h3 class="text-center mb-4">
+                        <i class="fas fa-user-circle text-success fa-2x"></i>
+                    </h3>
+                    <h4 class="text-center mb-4">用户登录</h4>
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>登录失败：</strong>请检查用户名和密码是否正确。
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        {% if next %}
+                        <input type="hidden" name="next" value="{{ next }}">
+                        {% endif %}
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">用户名</label>
+                            <input type="text" name="username" class="form-control" id="id_username" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label">密码</label>
+                            <input type="password" name="password" class="form-control" id="id_password" required>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember">
+                            <label class="form-check-label" for="remember">
+                                记住我
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success w-100">登录</button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <p class="mb-0">还没有账号？<a href="{% url 'account:signup' %}" class="text-decoration-none">立即注册</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

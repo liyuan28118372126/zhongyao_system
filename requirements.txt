@@ -1,0 +1,26 @@
+# Django core
+django>=5.0
+
+# Database
+django-environ  # For environment variable management
+
+# Image processing
+Pillow  # For image handling
+
+# Large language model integration
+openai  # For OpenAI API
+speaklater  # For iFLYTEK Spark API (if needed)
+
+# Image recognition
+tensorflow  # For local image recognition (optional)
+torch  # For local image recognition (optional)
+
+# Frontend
+django-bootstrap5  # For Bootstrap integration
+
+# Development
+django-debug-toolbar  # For development debugging
+
+# Testing
+pytest
+pytest-django

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ acupuncture_point.name }} - 中药系统{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                {% if acupuncture_point.image %}
+                <a href="#" data-bs-toggle="modal" data-bs-target="#imageModal">
+                    <img src="{{ acupuncture_point.image }}" class="card-img-top" alt="{{ acupuncture_point.name }}" style="height: 200px; object-fit: cover; cursor: pointer;">
+                </a>
+                {% endif %}
+                <div class="card-body">
+                    <h2 class="mb-4">{{ acupuncture_point.name }}</h2>
+                    
+                    {% if acupuncture_point.location %}
+                    <h5 class="mt-4 mb-3">位置</h5>
+                    <p>{{ acupuncture_point.location }}</p>
+                    {% endif %}
+                    
+                    {% if acupuncture_point.functions %}
+                    <h5 class="mt-4 mb-3">功效</h5>
+                    <p>{{ acupuncture_point.functions }}</p>
+                    {% endif %}
+                    
+                    {% if acupuncture_point.indications %}
+                    <h5 class="mt-4 mb-3">主治</h5>
+                    <p>{{ acupuncture_point.indications }}</p>
+                    {% endif %}
+                    
+                    {% if acupuncture_point.acupuncture_method %}
+                    <h5 class="mt-4 mb-3">针灸方法</h5>
+                    <p>{{ acupuncture_point.acupuncture_method }}</p>
+                    {% endif %}
+                    
+                    {% if acupuncture_point.precautions %}
+                    <h5 class="mt-4 mb-3">注意事项</h5>
+                    <p>{{ acupuncture_point.precautions }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5>相关操作</h5>
+                    <div class="d-grid gap-2 mt-3">
+                        <a href="{% url 'medicine:acupuncture_point_list' %}" class="btn btn-outline-success">返回列表</a>
+                        <a href="{% url 'llm_qa:ask_question' %}" class="btn btn-primary">智能问答</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for large image -->
+{% if acupuncture_point.image %}
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ acupuncture_point.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="{{ acupuncture_point.image }}" class="img-fluid" alt="{{ acupuncture_point.name }}">
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

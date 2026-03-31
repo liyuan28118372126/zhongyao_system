@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}求购信息 - 中药系统{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-between align-items-center mb-4">
+        <div class="col">
+            <h2><i class="fas fa-search text-success me-2"></i>求购信息</h2>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'sales:create_demand' %}" class="btn btn-success">
+                <i class="fas fa-plus-circle me-2"></i>发布求购
+            </a>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'sales:index' %}" class="btn btn-outline-success">
+                <i class="fas fa-arrow-left me-2"></i>返回首页
+            </a>
+        </div>
+    </div>
+    
+    <!-- 搜索筛选区域 -->
+    <div class="card mb-4 border">
+        <div class="card-body">
+            <form action="{% url 'sales:demand_list' %}" method="GET" class="form">
+                <!-- 品种筛选 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>品种：</strong></label>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for letter in 'ABCDEFGHJKLMNOPQRSTWXYZ' %}
+                        <a href="?letter={{ letter }}{% if stock_location %}&stock_location={{ stock_location }}{% endif %}{% if origin %}&origin={{ origin }}{% endif %}{% if price_type %}&price_type={{ price_type }}{% endif %}{% if invoice_type %}&invoice_type={{ invoice_type }}{% endif %}{% if standard %}&standard={{ standard }}{% endif %}{% if goods_type %}&goods_type={{ goods_type }}{% endif %}" class="btn btn-sm {% if request.GET.letter == letter %}btn-success{% else %}btn-outline-secondary{% endif %}">{{ letter }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- 搜索框 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>搜索：</strong></label>
+                    <div class="d-flex gap-2">
+                        <input type="text" name="q" class="form-control flex-grow-1" placeholder="输入药材品名" value="{{ search_query }}">
+                        <input type="text" name="spec" class="form-control flex-grow-1" placeholder="输入药材规格" value="{{ spec }}">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 库存地筛选 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>库存地：</strong></label>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for province in provinces %}
+                        <a href="?stock_location={{ province }}{% if search_query %}&q={{ search_query }}{% endif %}{% if spec %}&spec={{ spec }}{% endif %}{% if origin %}&origin={{ origin }}{% endif %}{% if price_type %}&price_type={{ price_type }}{% endif %}{% if invoice_type %}&invoice_type={{ invoice_type }}{% endif %}{% if standard %}&standard={{ standard }}{% endif %}{% if goods_type %}&goods_type={{ goods_type }}{% endif %}" class="btn btn-sm {% if stock_location == province %}btn-success{% else %}btn-outline-secondary{% endif %}">{{ province }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- 产地筛选 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>产地：</strong></label>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for province in provinces %}
+                        <a href="?origin={{ province }}{% if search_query %}&q={{ search_query }}{% endif %}{% if spec %}&spec={{ spec }}{% endif %}{% if stock_location %}&stock_location={{ stock_location }}{% endif %}{% if price_type %}&price_type={{ price_type }}{% endif %}{% if invoice_type %}&invoice_type={{ invoice_type }}{% endif %}{% if standard %}&standard={{ standard }}{% endif %}{% if goods_type %}&goods_type={{ goods_type }}{% endif %}" class="btn btn-sm {% if origin == province %}btn-success{% else %}btn-outline-secondary{% endif %}">{{ province }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- 价格类型筛选 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>价格：</strong></label>
+                    <div class="d-flex gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="price_type" id="price_negotiated" value="negotiated" {% if price_type == 'negotiated' %}checked{% endif %}>
+                            <label class="form-check-label" for="price_negotiated">电议</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="price_type" id="price_quoted" value="quoted" {% if price_type == 'quoted' %}checked{% endif %}>
+                            <label class="form-check-label" for="price_quoted">有报价</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 票据类型筛选 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>票据：</strong></label>
+                    <div class="d-flex flex-wrap gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="invoice_type" id="invoice_none" value="不提供票据" {% if invoice_type == '不提供票据' %}checked{% endif %}>
+                            <label class="form-check-label" for="invoice_none">不提供票据</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="invoice_type" id="invoice_invoice" value="发票" {% if invoice_type == '发票' %}checked{% endif %}>
+                            <label class="form-check-label" for="invoice_invoice">发票</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="invoice_type" id="invoice_purchase" value="收购手续" {% if invoice_type == '收购手续' %}checked{% endif %}>
+                            <label class="form-check-label" for="invoice_purchase">收购手续</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="invoice_type" id="invoice_both" value="发票或收购手续" {% if invoice_type == '发票或收购手续' %}checked{% endif %}>
+                            <label class="form-check-label" for="invoice_both">发票或收购手续</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 标准筛选 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>标准：</strong></label>
+                    <div class="d-flex flex-wrap gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="standard" id="standard_undetermined" value="待确定" {% if standard == '待确定' %}checked{% endif %}>
+                            <label class="form-check-label" for="standard_undetermined">待确定</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="standard" id="standard_export_pharmacopoeia" value="达到出口标准和药典标准" {% if standard == '达到出口标准和药典标准' %}checked{% endif %}>
+                            <label class="form-check-label" for="standard_export_pharmacopoeia">达到出口标准和药典标准</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="standard" id="standard_export" value="达到出口标准" {% if standard == '达到出口标准' %}checked{% endif %}>
+                            <label class="form-check-label" for="standard_export">达到出口标准</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="standard" id="standard_provincial" value="达到省标" {% if standard == '达到省标' %}checked{% endif %}>
+                            <label class="form-check-label" for="standard_provincial">达到省标</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="standard" id="standard_pharmacopoeia" value="达到药典标准" {% if standard == '达到药典标准' %}checked{% endif %}>
+                            <label class="form-check-label" for="standard_pharmacopoeia">达到药典标准</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 类型筛选 -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>类型：</strong></label>
+                    <div class="d-flex gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="goods_type" id="type_origin" value="产地货" {% if goods_type == '产地货' %}checked{% endif %}>
+                            <label class="form-check-label" for="type_origin">产地货</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="goods_type" id="type_spot" value="现货" {% if goods_type == '现货' %}checked{% endif %}>
+                            <label class="form-check-label" for="type_spot">现货</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'sales:demand_list' %}" class="btn btn-outline-secondary">重置</a>
+                    <button type="submit" class="btn btn-success">筛选</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    {% if demands %}
+    <div class="row g-4">
+        {% for demand in demands %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-effect">
+                <div class="card-body">
+                    <h5 class="card-title">{{ demand.medicine_name }}</h5>
+                    {% if demand.specification %}
+                    <p class="card-text small text-muted">{{ demand.specification }}</p>
+                    {% endif %}
+                    <div class="mb-2">
+                        <span class="text-success font-weight-bold">价格：</span>{{ demand.price }}
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">数量：</span>{{ demand.quantity }}
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">产地：</span>{{ demand.origin|default:'未知' }}
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-muted">联系人：</span>{{ demand.contact_name|default:'未知' }}
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'sales:demand_detail' demand.id %}" class="btn btn-success">
+                            <i class="fas fa-info-circle me-2"></i>查看详情
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">暂无求购信息</div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hover-effect:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+    }
+</style>
+{% endblock %}

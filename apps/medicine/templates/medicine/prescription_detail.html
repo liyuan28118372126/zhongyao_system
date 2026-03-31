@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ prescription.name }} - 中药系统{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                {% if prescription.image %}
+                <img src="{{ prescription.image }}" alt="{{ prescription.name }}" class="card-img-top" style="height: 300px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h2 class="mb-4 text-danger">{{ prescription.name }}</h2>
+                    
+                    {% if prescription.ingredients %}
+                    <h5 class="mt-4 mb-3">组成</h5>
+                    <p>{{ prescription.ingredients }}</p>
+                    {% endif %}
+                    
+                    {% if prescription.functions %}
+                    <h5 class="mt-4 mb-3">功效</h5>
+                    <p>{{ prescription.functions }}</p>
+                    {% endif %}
+                    
+                    {% if prescription.indications %}
+                    <h5 class="mt-4 mb-3">主治</h5>
+                    <p>{{ prescription.indications }}</p>
+                    {% endif %}
+                    
+                    {% if prescription.usage %}
+                    <h5 class="mt-4 mb-3">用法用量</h5>
+                    <p>{{ prescription.usage }}</p>
+                    {% endif %}
+                    
+                    {% if prescription.precautions %}
+                    <h5 class="mt-4 mb-3">注意事项</h5>
+                    <p>{{ prescription.precautions }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5>相关操作</h5>
+                    <div class="d-grid gap-2 mt-3">
+                        <a href="{% url 'medicine:prescription_list' %}" class="btn btn-outline-success">返回列表</a>
+                        <a href="{% url 'llm_qa:ask_question' %}" class="btn btn-primary">智能问答</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

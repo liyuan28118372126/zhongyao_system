@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}大模型答疑 - 中药系统{% endblock %}
+
+{% block content %}
+<div class="container-fluid min-vh-100 p-0">
+    <div class="row h-100">
+        <!-- 左侧历史对话栏 -->
+        <div class="col-md-3 bg-light border-right h-100">
+            <div class="p-4">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="rounded-circle bg-success text-white p-2 mr-3">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h4 class="mb-0">AI助手</h4>
+                </div>
+                
+                <a href="{% url 'llm_qa:ask_question' %}" class="btn btn-outline-primary w-100 mb-4">
+                    <i class="fas fa-plus me-2"></i>新对话
+                </a>
+                
+                <h5 class="text-muted mb-2">历史对话</h5>
+                <div class="list-group">
+                    {% for item in chat_history %}
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <small class="text-muted">您: {{ item.question|truncatechars:30 }}</small>
+                    </a>
+                    {% empty %}
+                    <div class="text-center text-muted py-4">
+                        暂无历史对话
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% if chat_history %}
+                <div class="mt-4">
+                    <form method="post" action="{% url 'llm_qa:clear_history' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger w-100">
+                            <i class="fas fa-trash-alt me-2"></i>清除所有历史
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 右侧对话区域 -->
+        <div class="col-md-9 h-100 d-flex flex-column">
+            <div class="p-4 border-bottom">
+                <h4 class="mb-0">新对话</h4>
+                <p class="text-muted small">内容由AI生成</p>
+            </div>
+            
+            <div class="flex-grow-1 overflow-auto p-4">
+                <!-- 欢迎消息 -->
+                {% if not chat_history and not answer %}
+                <div class="text-center py-8">
+                    <h3 class="mb-4">有什么我能帮你的吗？</h3>
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <form method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="question" value="什么是中药材？">
+                            <button type="submit" class="btn btn-outline-secondary">
+                                什么是中药材？
+                            </button>
+                        </form>
+                        <form method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="question" value="如何识别常见中药材？">
+                            <button type="submit" class="btn btn-outline-secondary">
+                                如何识别常见中药材？
+                            </button>
+                        </form>
+                        <form method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="question" value="中药材的功效有哪些？">
+                            <button type="submit" class="btn btn-outline-secondary">
+                                中药材的功效有哪些？
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- 对话内容 -->
+                {% if chat_history or answer %}
+                <div class="chat-container">
+                    {% for item in chat_history %}
+                    <!-- 用户消息 -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-end">
+                            <div class="bg-primary text-white rounded-lg p-3 max-w-75">
+                                <p class="mb-0">{{ item.question }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- AI消息 -->
+                    <div class="mb-4">
+                        <div class="d-flex">
+                            <div class="bg-light rounded-lg p-3 max-w-75">
+                                <p class="mb-0">{{ item.answer }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    {% if answer and not chat_history %}
+                    <!-- 用户消息 -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-end">
+                            <div class="bg-primary text-white rounded-lg p-3 max-w-75">
+                                <p class="mb-0">{{ request.POST.question }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- AI消息 -->
+                    <div class="mb-4">
+                        <div class="d-flex">
+                            <div class="bg-light rounded-lg p-3 max-w-75">
+                                <p class="mb-0">{{ answer }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- 输入区域 -->
+            <div class="p-4 border-top">
+                <form method="post" id="qa-form">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <textarea name="question" class="form-control" id="id_question" rows="2" required placeholder="请输入您关于中药材的问题..."></textarea>
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .max-w-75 {
+        max-width: 75%;
+    }
+</style>
+{% endblock %}

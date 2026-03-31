@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}药膳食疗列表 - 中药系统{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-between align-items-center mb-4">
+        <div class="col">
+            <h2><i class="fas fa-utensils text-success me-2"></i>药膳食疗列表</h2>
+        </div>
+        <div class="col-md-4">
+            <form method="get" class="input-group">
+                <input type="text" id="search-input" name="q" class="form-control" placeholder="搜索药膳食疗..." value="{{ query }}">
+                <button type="submit" class="btn btn-success"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+    </div>
+
+    {% block extra_js %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+    <script>
+        $(function() {
+            $("#search-input").autocomplete({
+                source: "{% url 'medicine:dietary_therapy_autocomplete' %}",
+                minLength: 1,
+                select: function(event, ui) {
+                    $(this).val(ui.item.value);
+                    $(this).closest('form').submit();
+                }
+            });
+        });
+    </script>
+    {% endblock %}
+    
+    {% if dietary_therapies %}
+    <div class="row g-4">
+        {% for therapy in dietary_therapies %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                {% if therapy.image %}
+                <a href="#" data-bs-toggle="modal" data-bs-target="#imageModal{{ forloop.counter }}">
+                    <img src="{{ therapy.image }}" alt="{{ therapy.name }}" class="card-img-top" style="height: 200px; object-fit: cover; cursor: pointer;">
+                </a>
+                {% endif %}
+                <div class="card-body text-center">
+                    {% if therapy.ingredients and 'https://' in therapy.ingredients %}
+                        <h5 class="card-title"><a href="{{ therapy.ingredients|cut:'查看详情: ' }}" target="_blank" class="text-decoration-none text-danger">{{ therapy.name }}</a></h5>
+                    {% else %}
+                        <h5 class="card-title text-danger">{{ therapy.name }}</h5>
+                    {% endif %}
+                    {% if therapy.ingredients and 'https://' not in therapy.ingredients %}
+                        <p class="card-text small text-muted">
+                            <strong>组成：</strong>{{ therapy.ingredients|truncatechars:100 }}
+                        </p>
+                    {% endif %}
+                    {% if therapy.functions and 'https://' not in therapy.functions %}
+                        <p class="card-text small">
+                            <strong>功效：</strong>{{ therapy.functions|truncatechars:80 }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for large image -->
+        {% if therapy.image %}
+        <div class="modal fade" id="imageModal{{ forloop.counter }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ therapy.name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img src="{{ therapy.image }}" class="img-fluid" alt="{{ therapy.name }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">暂无药膳食疗数据</div>
+    {% endif %}
+</div>
+{% endblock %}

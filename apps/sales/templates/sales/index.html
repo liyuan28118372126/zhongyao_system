@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}药材销售 - 中药系统{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="mb-4">
+                <i class="fas fa-shopping-cart text-success me-2"></i>药材销售系统
+            </h1>
+            <p class="text-muted mb-5">基于中药材供应和求购信息的数据平台</p>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-lg hover-effect">
+                        <div class="card-body p-5">
+                            <div class="mb-4">
+                                <i class="fas fa-box-open text-success fa-4x"></i>
+                            </div>
+                            <h3 class="card-title mb-3">供应信息</h3>
+                            <p class="card-text mb-4">查看中药材供应信息</p>
+                            <a href="{% url 'sales:supply_list' %}" class="btn btn-success w-100">
+                                <i class="fas fa-list me-2"></i>查看供应列表
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-lg hover-effect">
+                        <div class="card-body p-5">
+                            <div class="mb-4">
+                                <i class="fas fa-search text-success fa-4x"></i>
+                            </div>
+                            <h3 class="card-title mb-3">求购信息</h3>
+                            <p class="card-text mb-4">查看中药材求购信息</p>
+                            <a href="{% url 'sales:demand_list' %}" class="btn btn-success w-100">
+                                <i class="fas fa-list me-2"></i>查看求购列表
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-lg hover-effect">
+                        <div class="card-body p-5">
+                            <div class="mb-4">
+                                <i class="fas fa-tag text-success fa-4x"></i>
+                            </div>
+                            <h3 class="card-title mb-3">价格信息</h3>
+                            <p class="card-text mb-4">查看中药材价格信息</p>
+                            <a href="{% url 'sales:price_list' %}" class="btn btn-success w-100">
+                                <i class="fas fa-list me-2"></i>查看价格列表
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hover-effect:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+    }
+</style>
+{% endblock %}

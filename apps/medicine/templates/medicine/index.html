@@ -1,0 +1,467 @@
+{% extends 'base.html' %}
+
+{% block title %}中药系统 - 国家权威认证全类型医药信息查询平台{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section py-5" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">中药系统</h1>
+                <p class="lead mb-4">国家权威认证全类型医药信息查询平台</p>
+                <div class="hero-search">
+                    <form action="{% url 'medicine:search' %}" method="GET">
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fas fa-search text-success"></i>
+                            </span>
+                            <input type="text" name="q" class="form-control border-start-0" placeholder="搜索药品、疾病、症状、方剂、穴位...">
+                            <button class="btn btn-warning fw-bold" type="submit">搜索</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="mt-3">
+                    <small class="text-white-50">热门搜索：</small>
+                    <a href="{% url 'medicine:search' %}?q=人参" class="text-white text-decoration-none me-2"><small>人参</small></a>
+                    <a href="{% url 'medicine:search' %}?q=当归" class="text-white text-decoration-none me-2"><small>当归</small></a>
+                    <a href="{% url 'medicine:search' %}?q=黄芪" class="text-white text-decoration-none me-2"><small>黄芪</small></a>
+                    <a href="{% url 'medicine:search' %}?q=感冒" class="text-white text-decoration-none me-2"><small>感冒</small></a>
+                    <a href="{% url 'medicine:search' %}?q=高血压" class="text-white text-decoration-none"><small>高血压</small></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Access Categories -->
+<section class="categories-section py-5 bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4 col-lg-2">
+                <a href="{% url 'medicine:medicine_list' %}" class="text-decoration-none">
+                    <div class="category-card text-center p-4 bg-white rounded shadow-sm h-100">
+                        <div class="category-icon mb-3">
+                            <i class="fas fa-leaf text-success fa-3x"></i>
+                        </div>
+                        <h5 class="text-dark">中药材</h5>
+                        <p class="small text-muted mb-0">查询中药材信息</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <a href="{% url 'medicine:prescription_list' %}" class="text-decoration-none">
+                    <div class="category-card text-center p-4 bg-white rounded shadow-sm h-100">
+                        <div class="category-icon mb-3">
+                            <i class="fas fa-prescription-bottle-alt text-primary fa-3x"></i>
+                        </div>
+                        <h5 class="text-dark">方剂</h5>
+                        <p class="small text-muted mb-0">经典方剂查询</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <a href="{% url 'medicine:dietary_therapy_list' %}" class="text-decoration-none">
+                    <div class="category-card text-center p-4 bg-white rounded shadow-sm h-100">
+                        <div class="category-icon mb-3">
+                            <i class="fas fa-utensils text-warning fa-3x"></i>
+                        </div>
+                        <h5 class="text-dark">药膳食疗</h5>
+                        <p class="small text-muted mb-0">食疗养生方案</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <a href="{% url 'medicine:acupuncture_point_list' %}" class="text-decoration-none">
+                    <div class="category-card text-center p-4 bg-white rounded shadow-sm h-100">
+                        <div class="category-icon mb-3">
+                            <i class="fas fa-map-marker-alt text-danger fa-3x"></i>
+                        </div>
+                        <h5 class="text-dark">针灸穴位</h5>
+                        <p class="small text-muted mb-0">穴位查询定位</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <a href="{% url 'image_recognition:recognize' %}" class="text-decoration-none">
+                    <div class="category-card text-center p-4 bg-white rounded shadow-sm h-100">
+                        <div class="category-icon mb-3">
+                            <i class="fas fa-camera text-info fa-3x"></i>
+                        </div>
+                        <h5 class="text-dark">图像识别</h5>
+                        <p class="small text-muted mb-0">AI识别中药材</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <a href="{% url 'llm_qa:ask_question' %}" class="text-decoration-none">
+                    <div class="category-card text-center p-4 bg-white rounded shadow-sm h-100">
+                        <div class="category-icon mb-3">
+                            <i class="fas fa-robot text-secondary fa-3x"></i>
+                        </div>
+                        <h5 class="text-dark">智能问答</h5>
+                        <p class="small text-muted mb-0">大模型答疑</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Medicines -->
+<section class="featured-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-bold">
+                        <i class="fas fa-fire text-danger me-2"></i>热门中药材
+                    </h3>
+                    <a href="{% url 'medicine:medicine_list' %}" class="text-decoration-none">查看更多 <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="row g-3">
+                    {% for medicine in featured_medicines %}
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    {% if medicine.image %}
+                                    <img src="{{ medicine.image }}" alt="{{ medicine.name }}" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                        <i class="fas fa-leaf text-success fa-2x"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div class="ms-3 flex-grow-1">
+                                        {% if medicine.functions and 'https://' in medicine.functions %}
+                                            <h5 class="card-title mb-1"><a href="{{ medicine.functions|cut:'查看详情: ' }}" target="_blank" class="text-decoration-none text-danger">{{ medicine.name }}</a></h5>
+                                        {% else %}
+                                            <h5 class="card-title mb-1 text-danger">{{ medicine.name }}</h5>
+                                        {% endif %}
+                                        <p class="card-text small text-muted mb-1">{{ medicine.latin_name|default:"" }}</p>
+                                        {% if medicine.functions and 'https://' not in medicine.functions %}
+                                            <p class="card-text small text-truncate">{{ medicine.functions|truncatechars:50 }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info">暂无热门中药材数据</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-4">
+                    <h3 class="fw-bold mb-3">
+                        <i class="fas fa-newspaper text-primary me-2"></i>最新药闻
+                    </h3>
+                    <div class="list-group">
+                        {% for news in latest_news %}
+                        <a href="{% url 'news:news_detail' news.pk %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ news.title|truncatechars:30 }}</h6>
+                            </div>
+                            <small class="text-muted">{{ news.publish_date|date:"Y-m-d" }}</small>
+                        </a>
+                        {% empty %}
+                        <div class="list-group-item">暂无最新药闻</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="card border-0 shadow-sm bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-camera me-2"></i>图像识别
+                        </h5>
+                        <p class="card-text">上传中药材图片，AI智能识别药材名称和功效</p>
+                        <a href="{% url 'image_recognition:recognize' %}" class="btn btn-light btn-sm">立即体验</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Prescriptions Section -->
+<section class="prescriptions-section py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold">
+                <i class="fas fa-prescription-bottle-alt text-primary me-2"></i>经典方剂
+            </h3>
+            <a href="{% url 'medicine:prescription_list' %}" class="text-decoration-none">查看更多 <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="row g-4">
+            {% for prescription in featured_prescriptions %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if prescription.image %}
+                    <img src="{{ prescription.image }}" alt="{{ prescription.name }}" class="card-img-top" style="height: 150px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        {% if prescription.ingredients and 'https://' in prescription.ingredients %}
+                            <h5 class="card-title"><a href="{{ prescription.ingredients|cut:'查看详情: ' }}" target="_blank" class="text-decoration-none text-danger">{{ prescription.name }}</a></h5>
+                        {% else %}
+                            <h5 class="card-title text-danger">{{ prescription.name }}</h5>
+                        {% endif %}
+                        {% if prescription.ingredients and 'https://' not in prescription.ingredients %}
+                            <p class="card-text small text-muted">
+                                <strong>组成：</strong>{{ prescription.ingredients|truncatechars:50 }}
+                            </p>
+                        {% endif %}
+                        {% if prescription.functions and 'https://' not in prescription.functions %}
+                            <p class="card-text small">
+                                <strong>功效：</strong>{{ prescription.functions|truncatechars:40 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">暂无方剂数据</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Today's Prices Section -->
+<section class="prices-section py-5 bg-light">
+    <div class="container">
+        <!-- 加载状态提示 -->
+        {% if need_load_data %}
+        <div id="loading-alert" class="alert alert-info alert-dismissible fade show mb-4" role="alert">
+            <strong>数据加载中</strong> 系统正在后台加载今日价格数据，请稍候...
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endif %}
+        
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">价格信息</h5>
+                <div class="nav nav-tabs card-header-tabs" id="priceTabs" role="tablist">
+                    <button class="nav-link active" id="today-tab" data-bs-toggle="tab" data-bs-target="#today" type="button" role="tab" aria-controls="today" aria-selected="true">今日价格</button>
+                    <button class="nav-link" id="market-tab" data-bs-toggle="tab" data-bs-target="#market" type="button" role="tab" aria-controls="market" aria-selected="false">市场价格</button>
+                    <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">历史价格</button>
+                    <button class="nav-link" id="trend-tab" data-bs-toggle="tab" data-bs-target="#trend" type="button" role="tab" aria-controls="trend" aria-selected="false">价格涨跌</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="priceTabsContent">
+                    <!-- 今日价格表格 -->
+                    <div class="tab-pane fade show active" id="today" role="tabpanel" aria-labelledby="today-tab">
+                        {% if today_prices %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-success">
+                                    <tr>
+                                        <th>品名</th>
+                                        <th>规格</th>
+                                        <th>产地</th>
+                                        <th>亳州</th>
+                                        <th>安国</th>
+                                        <th>成都</th>
+                                        <th>玉林</th>
+                                        <th>廉桥</th>
+                                        <th>普宁</th>
+                                        <th>历史</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for supply in today_prices|slice:':20' %}
+                                    <tr>
+                                        <td>{{ supply.medicine_name }}</td>
+                                        <td>{{ supply.specification|default:'无' }}</td>
+                                        <td>{{ supply.origin|default:'无' }}</td>
+                                        <td>{{ supply.bozhou_price|default:'--' }}</td>
+                                        <td>{{ supply.angui_price|default:'--' }}</td>
+                                        <td>{{ supply.chengdu_price|default:'--' }}</td>
+                                        <td>{{ supply.yulin_price|default:'--' }}</td>
+                                        <td>{{ supply.lianqiao_price|default:'--' }}</td>
+                                        <td>{{ supply.puning_price|default:'--' }}</td>
+                                        <td><i class="fas fa-chart-line text-danger"></i></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">暂无今日价格数据</div>
+                        {% endif %}
+                        {% if today_prices.count > 20 %}
+                        <div class="mt-3 text-center">
+                            <a href="{% url 'sales:price_list' %}" class="btn btn-success">查看更多</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- 市场价格表格 -->
+                    <div class="tab-pane fade" id="market" role="tabpanel" aria-labelledby="market-tab">
+                        <div class="alert alert-info">市场价格数据正在更新中...</div>
+                    </div>
+                    
+                    <!-- 历史价格表格 -->
+                    <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+                        {% if today_prices %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-success">
+                                    <tr>
+                                        <th>品名</th>
+                                        <th>规格</th>
+                                        <th>产地</th>
+                                        <th>亳州</th>
+                                        <th>安国</th>
+                                        <th>成都</th>
+                                        <th>玉林</th>
+                                        <th>廉桥</th>
+                                        <th>普宁</th>
+                                        <th>历史</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for supply in today_prices|slice:':20' %}
+                                    <tr>
+                                        <td>{{ supply.medicine_name }}</td>
+                                        <td>{{ supply.specification|default:'无' }}</td>
+                                        <td>{{ supply.origin|default:'无' }}</td>
+                                        <td>{{ supply.bozhou_price|default:'--' }}</td>
+                                        <td>{{ supply.angui_price|default:'--' }}</td>
+                                        <td>{{ supply.chengdu_price|default:'--' }}</td>
+                                        <td>{{ supply.yulin_price|default:'--' }}</td>
+                                        <td>{{ supply.lianqiao_price|default:'--' }}</td>
+                                        <td>{{ supply.puning_price|default:'--' }}</td>
+                                    <td><a href="#" class="text-danger"><i class="fas fa-chart-line"></i></a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">暂无历史价格数据</div>
+                        {% endif %}
+                        {% if today_prices.count > 20 %}
+                        <div class="mt-3 text-center">
+                            <a href="{% url 'sales:price_list' %}" class="btn btn-success">查看更多</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- 价格涨跌表格 -->
+                    <div class="tab-pane fade" id="trend" role="tabpanel" aria-labelledby="trend-tab">
+                        <div class="alert alert-info">价格涨跌数据正在更新中...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h3 class="fw-bold">为什么选择中药系统</h3>
+            <p class="text-muted">专业的中医药信息服务平台</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-shield-alt text-success fa-4x"></i>
+                    </div>
+                    <h5>权威认证</h5>
+                    <p class="text-muted">国家权威认证的全类型医药信息查询平台，信息准确可靠</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-brain text-primary fa-4x"></i>
+                    </div>
+                    <h5>AI智能</h5>
+                    <p class="text-muted">基于大模型的智能问答和图像识别，让中医药知识更易获取</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-database text-warning fa-4x"></i>
+                    </div>
+                    <h5>全面覆盖</h5>
+                    <p class="text-muted">涵盖中药材、方剂、药膳食疗、针灸穴位等全方位信息</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.hero-section {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.category-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+}
+
+.feature-icon {
+    opacity: 0.8;
+}
+
+.feature-icon:hover {
+    opacity: 1;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 后台加载价格数据
+    $(document).ready(function() {
+        {% if need_load_data %}
+        // 显示加载提示
+        $('#loading-alert').show();
+        
+        // 发起AJAX请求加载数据
+        $.ajax({
+            url: '{% url "sales:load_price_data" %}',
+            type: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    // 数据加载成功，刷新页面
+                    location.reload();
+                } else {
+                    // 数据加载失败，显示错误信息
+                    $('#loading-alert').removeClass('alert-info').addClass('alert-danger');
+                    $('#loading-alert').html('<strong>加载失败</strong> ' + response.message);
+                }
+            },
+            error: function() {
+                // AJAX请求失败，显示错误信息
+                $('#loading-alert').removeClass('alert-info').addClass('alert-danger');
+                $('#loading-alert').html('<strong>加载失败</strong> 网络错误，请稍后重试');
+            }
+        });
+        {% endif %}
+        
+        // 移除历史价格折线图功能
+    });
+</script>
+{% endblock %}

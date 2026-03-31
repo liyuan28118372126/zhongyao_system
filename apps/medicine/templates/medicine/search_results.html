@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block title %}搜索结果 - {{ query }} - 中药系统{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Search Header -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-8">
+            <h2 class="text-center mb-4">搜索结果</h2>
+            <form action="{% url 'medicine:search' %}" method="GET">
+                <div class="input-group input-group-lg">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="fas fa-search text-success"></i>
+                    </span>
+                    <input type="text" name="q" class="form-control border-start-0" placeholder="搜索药品、疾病、症状、方剂..." value="{{ query }}">
+                    <button class="btn btn-success" type="submit">搜索</button>
+                </div>
+            </form>
+            {% if query %}
+            <p class="text-center text-muted mt-3">
+                搜索关键词：<strong>"{{ query }}"</strong>
+            </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    {% if query %}
+    <div class="row">
+        <!-- Medicines -->
+        {% if medicines %}
+        <div class="col-12 mb-4">
+            <h4 class="border-bottom pb-2">
+                <i class="fas fa-leaf text-success me-2"></i>中药材 ({{ medicines|length }})
+            </h4>
+            <div class="row g-3">
+                {% for medicine in medicines %}
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                {% if medicine.image %}
+                                <img src="{{ medicine.image }}" alt="{{ medicine.name }}" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+                                {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-leaf text-success fa-2x"></i>
+                                </div>
+                                {% endif %}
+                                <div class="ms-3 flex-grow-1">
+                                    <h5 class="card-title mb-1">
+                                        <a href="{% url 'medicine:medicine_detail' medicine.pk %}" class="text-decoration-none text-dark">{{ medicine.name }}</a>
+                                    </h5>
+                                    <p class="card-text small text-muted mb-1">{{ medicine.latin_name|default:"" }}</p>
+                                    <p class="card-text small">{{ medicine.functions|default:"暂无功效说明"|truncatechars:80 }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Prescriptions -->
+        {% if prescriptions %}
+        <div class="col-12 mb-4">
+            <h4 class="border-bottom pb-2">
+                <i class="fas fa-prescription-bottle-alt text-primary me-2"></i>方剂 ({{ prescriptions|length }})
+            </h4>
+            <div class="row g-3">
+                {% for prescription in prescriptions %}
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                {% if prescription.image %}
+                                <img src="{{ prescription.image }}" alt="{{ prescription.name }}" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+                                {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-prescription-bottle-alt text-primary fa-2x"></i>
+                                </div>
+                                {% endif %}
+                                <div class="ms-3 flex-grow-1">
+                                    <h5 class="card-title">
+                                        <a href="{% url 'medicine:prescription_detail' prescription.pk %}" class="text-decoration-none text-dark">{{ prescription.name }}</a>
+                                    </h5>
+                                    <p class="card-text small text-muted">
+                                        <strong>组成：</strong>{{ prescription.ingredients|truncatechars:100 }}
+                                    </p>
+                                    <p class="card-text small">
+                                        <strong>功效：</strong>{{ prescription.functions|default:"暂无功效说明"|truncatechars:80 }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Dietary Therapies -->
+        {% if dietary_therapies %}
+        <div class="col-12 mb-4">
+            <h4 class="border-bottom pb-2">
+                <i class="fas fa-utensils text-warning me-2"></i>药膳食疗 ({{ dietary_therapies|length }})
+            </h4>
+            <div class="row g-3">
+                {% for therapy in dietary_therapies %}
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                {% if therapy.image %}
+                                <img src="{{ therapy.image }}" alt="{{ therapy.name }}" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+                                {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-utensils text-warning fa-2x"></i>
+                                </div>
+                                {% endif %}
+                                <div class="ms-3 flex-grow-1">
+                                    <h5 class="card-title">
+                                        <a href="{% url 'medicine:dietary_therapy_detail' therapy.pk %}" class="text-decoration-none text-dark">{{ therapy.name }}</a>
+                                    </h5>
+                                    <p class="card-text small text-muted">
+                                        <strong>食材：</strong>{{ therapy.ingredients|truncatechars:100 }}
+                                    </p>
+                                    <p class="card-text small">
+                                        <strong>功效：</strong>{{ therapy.functions|default:"暂无功效说明"|truncatechars:80 }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Acupuncture Points -->
+        {% if acupuncture_points %}
+        <div class="col-12 mb-4">
+            <h4 class="border-bottom pb-2">
+                <i class="fas fa-map-marker-alt text-danger me-2"></i>针灸穴位 ({{ acupuncture_points|length }})
+            </h4>
+            <div class="row g-3">
+                {% for point in acupuncture_points %}
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-map-marker-alt text-danger fa-2x"></i>
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h5 class="card-title">
+                                        <a href="{% url 'medicine:acupuncture_point_detail' point.pk %}" class="text-decoration-none text-dark">{{ point.name }}</a>
+                                    </h5>
+                                    <p class="card-text small text-muted">
+                                        <strong>定位：</strong>{{ point.location|default:"暂无定位说明"|truncatechars:100 }}
+                                    </p>
+                                    <p class="card-text small">
+                                        <strong>功效：</strong>{{ point.functions|default:"暂无功效说明"|truncatechars:80 }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- No Results -->
+        {% if not medicines and not prescriptions and not dietary_therapies and not acupuncture_points %}
+        <div class="col-12 text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-search fa-4x text-muted"></i>
+            </div>
+            <h4 class="text-muted">未找到相关结果</h4>
+            <p class="text-muted">请尝试其他关键词或检查拼写是否正确</p>
+            <div class="mt-4">
+                <h6 class="text-muted mb-3">热门搜索：</h6>
+                <a href="{% url 'medicine:search' %}?q=人参" class="btn btn-outline-success btn-sm me-2">人参</a>
+                <a href="{% url 'medicine:search' %}?q=当归" class="btn btn-outline-success btn-sm me-2">当归</a>
+                <a href="{% url 'medicine:search' %}?q=黄芪" class="btn btn-outline-success btn-sm me-2">黄芪</a>
+                <a href="{% url 'medicine:search' %}?q=感冒" class="btn btn-outline-success btn-sm me-2">感冒</a>
+                <a href="{% url 'medicine:search' %}?q=高血压" class="btn btn-outline-success btn-sm">高血压</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-search fa-4x text-muted"></i>
+        </div>
+        <h4 class="text-muted">请输入搜索关键词</h4>
+        <p class="text-muted">搜索中药材、方剂、药膳食疗、针灸穴位等信息</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

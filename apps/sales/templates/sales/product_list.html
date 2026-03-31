@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}药材销售 - 中药系统{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-between align-items-center mb-4">
+        <div class="col">
+            <h2><i class="fas fa-shopping-cart text-success me-2"></i>药材销售</h2>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'sales:cart' %}" class="btn btn-outline-success">
+                <i class="fas fa-shopping-cart me-2"></i>购物车
+            </a>
+        </div>
+    </div>
+    
+    {% if products %}
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text small text-muted">{{ product.medicine.name }}</p>
+                    <p class="card-text">
+                        <strong>价格：</strong>¥{{ product.price }}
+                    </p>
+                    <p class="card-text small">
+                        <strong>库存：</strong>{{ product.stock }}
+                    </p>
+                    <div class="d-grid gap-2 mt-3">
+                        <a href="{% url 'sales:add_to_cart' product.id %}" class="btn btn-success">
+                            <i class="fas fa-cart-plus me-2"></i>加入购物车
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">暂无商品数据</div>
+    {% endif %}
+</div>
+{% endblock %}

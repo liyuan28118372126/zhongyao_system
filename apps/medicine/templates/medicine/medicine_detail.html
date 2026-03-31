@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ medicine.name }} - 中药系统{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                {% if medicine.image %}
+                <img src="{{ medicine.image }}" alt="{{ medicine.name }}" class="card-img-top" style="height: 300px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h2 class="mb-4 text-danger">{{ medicine.name }}</h2>
+                    {% if medicine.latin_name %}
+                    <p class="text-muted mb-3"><strong>拉丁名：</strong>{{ medicine.latin_name }}</p>
+                    {% endif %}
+                    
+                    {% if medicine.category %}
+                    <p class="mb-2"><strong>分类：</strong>{{ medicine.category }}</p>
+                    {% endif %}
+                    
+                    {% if medicine.origin %}
+                    <p class="mb-2"><strong>产地：</strong>{{ medicine.origin }}</p>
+                    {% endif %}
+                    
+                    {% if medicine.properties %}
+                    <h5 class="mt-4 mb-3">性味归经</h5>
+                    <p>{{ medicine.properties }}</p>
+                    {% endif %}
+                    
+                    {% if medicine.functions %}
+                    <h5 class="mt-4 mb-3">功效</h5>
+                    <p>{{ medicine.functions }}</p>
+                    {% endif %}
+                    
+                    {% if medicine.indications %}
+                    <h5 class="mt-4 mb-3">主治</h5>
+                    <p>{{ medicine.indications }}</p>
+                    {% endif %}
+                    
+                    {% if medicine.usage %}
+                    <h5 class="mt-4 mb-3">用法用量</h5>
+                    <p>{{ medicine.usage }}</p>
+                    {% endif %}
+                    
+                    {% if medicine.precautions %}
+                    <h5 class="mt-4 mb-3">注意事项</h5>
+                    <p>{{ medicine.precautions }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5>相关操作</h5>
+                    <div class="d-grid gap-2 mt-3">
+                        <a href="{% url 'medicine:medicine_list' %}" class="btn btn-outline-success">返回列表</a>
+                        <a href="{% url 'llm_qa:ask_question' %}" class="btn btn-primary">智能问答</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

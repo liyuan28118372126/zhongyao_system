@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ therapy.name }} - 中药系统{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                {% if therapy.image %}
+                <img src="{{ therapy.image }}" alt="{{ therapy.name }}" class="card-img-top" style="height: 300px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h2 class="mb-4 text-danger">{{ therapy.name }}</h2>
+                    
+                    {% if therapy.ingredients %}
+                    <h5 class="mt-4 mb-3">组成</h5>
+                    <p>{{ therapy.ingredients }}</p>
+                    {% endif %}
+                    
+                    {% if therapy.functions %}
+                    <h5 class="mt-4 mb-3">功效</h5>
+                    <p>{{ therapy.functions }}</p>
+                    {% endif %}
+                    
+                    {% if therapy.indications %}
+                    <h5 class="mt-4 mb-3">主治</h5>
+                    <p>{{ therapy.indications }}</p>
+                    {% endif %}
+                    
+                    {% if therapy.usage %}
+                    <h5 class="mt-4 mb-3">用法用量</h5>
+                    <p>{{ therapy.usage }}</p>
+                    {% endif %}
+                    
+                    {% if therapy.precautions %}
+                    <h5 class="mt-4 mb-3">注意事项</h5>
+                    <p>{{ therapy.precautions }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5>相关操作</h5>
+                    <div class="d-grid gap-2 mt-3">
+                        <a href="{% url 'medicine:dietary_therapy_list' %}" class="btn btn-outline-success">返回列表</a>
+                        <a href="{% url 'llm_qa:ask_question' %}" class="btn btn-primary">智能问答</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

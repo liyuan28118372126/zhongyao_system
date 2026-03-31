@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}注册 - 中药系统{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h3 class="text-center mb-4">
+                        <i class="fas fa-user-plus text-success fa-2x"></i>
+                    </h3>
+                    <h4 class="text-center mb-4">用户注册</h4>
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>注册失败：</strong>请检查表单信息是否正确。
+                        <ul class="mb-0 mt-2">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">用户名</label>
+                            <input type="text" name="username" class="form-control" id="id_username" required>
+                            <small class="form-text text-muted">请输入用户名</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label">邮箱</label>
+                            <input type="email" name="email" class="form-control" id="id_email" required>
+                            <small class="form-text text-muted">请输入有效的邮箱地址</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_password1" class="form-label">密码</label>
+                            <input type="password" name="password1" class="form-control" id="id_password1" required>
+                            <small class="form-text text-muted">密码至少8个字符</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_password2" class="form-label">确认密码</label>
+                            <input type="password" name="password2" class="form-control" id="id_password2" required>
+                            <small class="form-text text-muted">请再次输入密码以确认</small>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success w-100">注册</button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <p class="mb-0">已有账号？<a href="{% url 'account:login' %}" class="text-decoration-none">立即登录</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
