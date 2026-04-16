@@ -9,14 +9,25 @@ from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLRO
 from tensorflow.keras.preprocessing.image import random_rotation
 import matplotlib.pyplot as plt
 
+# 设置Keras缓存目录到项目内
+os.environ['KERAS_HOME'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'models', '.keras')
+
 # ===================== 【本地路径】你刚刚生成的文件 =====================
-ZIP_FILE_NAME = r"训练包种中药材.zip"
-LABEL_FILE_NAME = r"训练标注中药材.csv"
+# 获取当前文件所在目录
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# 向上一级到image_recognition目录，再到models目录
+models_dir = os.path.join(current_dir, '..', 'models')
+
+ZIP_FILE_NAME = os.path.join(models_dir, "训练包中药材.zip")
+LABEL_FILE_NAME = os.path.join(models_dir, "训练标注中药材.csv")
 
 # 本地解压目录
-UNZIP_DIR = r"D:\Python\pycharm\pythonProject1\llm\zhongyao_999"
-OUTPUT_MODEL = r"D:\Python\pycharm\pythonProject1\llm\best_zhongyao.keras"
-OUTPUT_CLASS = r"D:\Python\pycharm\pythonProject1\llm\class_mapping.json"
+UNZIP_DIR = os.path.join(models_dir, "zhongyao_999")
+OUTPUT_MODEL = os.path.join(models_dir, "best_zhongyao.keras")
+OUTPUT_CLASS = os.path.join(models_dir, "class_mapping.json")
+
+# 创建Keras缓存目录
+os.makedirs(os.environ['KERAS_HOME'], exist_ok=True)
 
 # ===================== 1. 检查文件 =====================
 print("=== 第一步：检查文件 ===")
@@ -26,7 +37,7 @@ if not os.path.exists(ZIP_FILE_NAME):
 if not os.path.exists(LABEL_FILE_NAME):
     raise Exception(f"找不到标注文件：{LABEL_FILE_NAME}")
 
-print("✅ 文件检查完成！")
+print("[OK] 文件检查完成！")
 
 # ===================== 2. 解压 =====================
 print("\n=== 第二步：解压数据 ===")
@@ -36,7 +47,7 @@ with zipfile.ZipFile(ZIP_FILE_NAME, 'r') as zipf:
     zipf.extractall(UNZIP_DIR)
 
 img_count = len([f for f in os.listdir(UNZIP_DIR) if f.endswith(('.jpg', '.png'))])
-print(f"✅ 解压完成！共 {img_count} 张图片")
+print(f"[OK] 解压完成！共 {img_count} 张图片")
 
 # ===================== 3. 构建数据集 =====================
 print("\n=== 第三步：构建数据集 ===")
@@ -50,7 +61,7 @@ idx_to_class = {v: k for k, v in class_to_idx.items()}
 with open(OUTPUT_CLASS, 'w', encoding='utf-8') as f:
     json.dump(idx_to_class, f, ensure_ascii=False)
 
-print(f"✅ 类别数：{num_classes}")
+print(f"[OK] 类别数：{num_classes}")
 
 image_paths = []
 labels = []
@@ -60,7 +71,7 @@ for _, row in df.iterrows():
         image_paths.append(img_path)
         labels.append(class_to_idx[row["label"]])
 
-print(f"✅ 有效数据：{len(image_paths)} 条")
+print(f"[OK] 有效数据：{len(image_paths)} 条")
 
 # 划分
 train_ratio = 0.8
@@ -120,9 +131,20 @@ validation_steps = math.ceil(len(val_paths) / batch_size)
 # ===================== 训练模型 =====================
 print("\n=== 第四步：开始训练 ===")
 
-base_model = tf.keras.applications.MobileNetV2(
-    input_shape=(224, 224, 3), weights="imagenet", include_top=False
-)
+# 尝试使用预训练权重，如果下载失败则使用随机初始化
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
+try:
+    base_model = tf.keras.applications.MobileNetV2(
+        input_shape=(224, 224, 3), weights="imagenet", include_top=False
+    )
+    print("[OK] 成功加载预训练权重")
+except Exception as e:
+    print(f"[WARNING] 加载预训练权重失败：{e}，使用随机初始化")
+    base_model = tf.keras.applications.MobileNetV2(
+        input_shape=(224, 224, 3), weights=None, include_top=False
+    )
 
 base_model.trainable = True
 for layer in base_model.layers[:-10]:
@@ -162,7 +184,7 @@ history = model.fit(
 )
 
 # ===================== 训练完成 =====================
-print("\n🏁 训练完成！")
+print("\n[DONE] 训练完成！")
 print(f"模型已保存：{OUTPUT_MODEL}")
 print(f"类别映射：{OUTPUT_CLASS}")
 

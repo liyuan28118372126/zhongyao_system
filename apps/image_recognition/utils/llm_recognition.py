@@ -19,8 +19,14 @@ BAIDU_SECRET_KEY = "rsLPUGZuhy90JO7wt6yGA2EAJGEn7SQ1"
 BAIDU_ACCESS_TOKEN = None
 
 # 本地模型路径
-MODEL_PATH = r"D:\bishe\zhongyao_system\apps\image_recognition\models\best_zhongyao_971.keras"
-MAPPING_PATH = r"D:\bishe\zhongyao_system\apps\image_recognition\models\class_mapping_971.json"
+import os
+# 获取当前文件所在目录
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# 向上一级到image_recognition目录，再到models目录
+models_dir = os.path.join(current_dir, '..', 'models')
+
+MODEL_PATH = os.path.join(models_dir, "best_zhongyao.keras")
+MAPPING_PATH = os.path.join(models_dir, "class_mapping.json")
 
 # 中药关键词增强（用于模糊匹配）
 CHINESE_HERB_KEYWORDS = [
@@ -45,22 +51,41 @@ def fuzzy_match_herb(keyword, herb_list):
     """模糊匹配中药材（支持部分关键词匹配）"""
     keyword = keyword.lower().strip()
     matched = []
-    # 1. 完全匹配
-    if keyword in herb_list:
-        matched.append((keyword, 1.0))  # 匹配度100%
-    # 2. 包含匹配（如"西洋参"匹配"人参"）
+    print(f"🔍 尝试匹配关键词：{keyword}")
+    
+    # 计算关键词与每个中药材的匹配度
     for herb in herb_list:
-        if keyword in herb or herb in keyword:
+        herb_lower = herb.lower().strip()
+        
+        # 1. 完全匹配
+        if keyword == herb_lower:
+            matched.append((herb, 1.0))  # 匹配度100%
+            print(f"✅ 完全匹配：{herb}")
+        # 2. 包含匹配（如"西洋参"匹配"人参"）
+        elif keyword in herb_lower or herb_lower in keyword:
             matched.append((herb, 0.8))  # 匹配度80%
-    # 3. 关键词匹配（如包含"参"）
-    for herb in herb_list:
-        for kw in CHINESE_HERB_KEYWORDS:
-            if kw in keyword and kw in herb:
-                matched.append((herb, 0.6))  # 匹配度60%
+            print(f"✅ 包含匹配：{herb}")
+        # 3. 关键词匹配（如包含"参"）
+        elif any(kw in keyword and kw in herb_lower for kw in CHINESE_HERB_KEYWORDS):
+            matched.append((herb, 0.6))  # 匹配度60%
+            print(f"✅ 关键词匹配：{herb}")
+        # 4. 部分匹配（如"黄芪"匹配"黄"）
+        elif any(part in herb_lower for part in keyword.split()):
+            matched.append((herb, 0.5))  # 匹配度50%
+            print(f"✅ 部分匹配：{herb}")
+    
     # 去重并按匹配度排序
     matched = list(set(matched))
     matched.sort(key=lambda x: x[1], reverse=True)
-    return matched[0][0] if matched else None
+    
+    # 只返回匹配度大于0.7的结果
+    if matched and matched[0][1] >= 0.7:
+        result = matched[0][0]
+        print(f"🔍 最终匹配结果：{result} (匹配度: {matched[0][1]})")
+        return result
+    else:
+        print("🔍 无足够匹配度的结果")
+        return None
 
 
 # ===================== 百度识图（仅中药版） =====================
@@ -100,25 +125,31 @@ def predict_baidu_herb_only(img_path, herb_list, top_n=5):
 
     result = response.json()
     herb_results = []
+    print(f"🔍 百度原始识别结果：{[item['keyword'] for item in result.get('result', [])[:10]]}")
+    
     if "result" in result:
-        for item in result["result"][:10]:  # 先取前10个结果过滤
+        for item in result["result"][:20]:  # 取前20个结果过滤，增加识别机会
             keyword = item["keyword"].strip()
             score = float(item["score"])
-            # 模糊匹配中药材
-            matched_herb = fuzzy_match_herb(keyword, herb_list)
-            if matched_herb:
-                # 调整置信度（匹配度加权）
-                match_score = 1.0 if matched_herb == keyword.lower() else 0.8
-                final_score = score * match_score * 100  # 转百分比
-                herb_results.append({
-                    "source": "百度识图（中药）",
-                    "rank": len(herb_results) + 1,
-                    "name": matched_herb,
-                    "score": round(final_score, 2),
-                    "original": keyword  # 原始识别结果
-                })
-                if len(herb_results) >= top_n:
-                    break
+            
+            # 只处理置信度大于0.5的结果
+            if score >= 0.5:
+                # 模糊匹配中药材
+                matched_herb = fuzzy_match_herb(keyword, herb_list)
+                if matched_herb:
+                    # 调整置信度（匹配度加权）
+                    match_score = 1.0 if matched_herb == keyword.lower() else 0.8
+                    final_score = score * match_score * 100  # 转百分比
+                    herb_results.append({
+                        "source": "百度识图（中药）",
+                        "rank": len(herb_results) + 1,
+                        "name": matched_herb,
+                        "score": round(final_score, 2),
+                        "original": keyword  # 原始识别结果
+                    })
+                    if len(herb_results) >= top_n:
+                        break
+    print(f"🔍 百度中药识别结果：{[res['name'] for res in herb_results]}")
     return herb_results
 
 
@@ -180,13 +211,16 @@ def predict_local_model(model, idx_to_class, img_path, top_n=5):
     pred_indices = tf.argsort(pred[0], direction='DESCENDING').numpy()[:top_n]
     pred_confs = tf.sort(pred[0], direction='DESCENDING').numpy()[:top_n]
     results = []
+    print(f"本地模型预测结果：indices={pred_indices}, confs={pred_confs}")
     for i in range(top_n):
         herb_name = idx_to_class[str(pred_indices[i])]
+        score = round(float(pred_confs[i]) * 100, 2)
+        print(f"预测第{i+1}名：{herb_name}，置信度：{score}%")
         results.append({
             "source": "本地模型（中药）",
             "rank": i + 1,
             "name": herb_name,
-            "score": round(float(pred_confs[i]) * 100, 2),
+            "score": score,
             "original": herb_name
         })
     return results
@@ -197,20 +231,23 @@ def fusion_predict_herb_only(img_path, top_n=5):
     """融合预测：仅返回中药材结果"""
     # 1. 加载模型和中药库
     model, idx_to_class, herb_list = load_model_and_mapping()
+    print(f"✅ 加载模型成功，中药材库大小：{len(herb_list)}")
 
     # 2. 百度识图（仅中药）
     baidu_results = []
     try:
         baidu_results = predict_baidu_herb_only(img_path, herb_list, top_n)
+        print(f"✅ 百度识图结果：{[res['name'] for res in baidu_results]}")
     except Exception as e:
         print(f"⚠️ 百度识图调用失败：{e}")
 
     # 3. 本地模型预测
     local_results = predict_local_model(model, idx_to_class, img_path, top_n)
+    print(f"✅ 本地模型结果：{[res['name'] for res in local_results]}")
 
-    # 4. 融合结果（优先百度识图，补充本地模型）
+    # 4. 融合结果（优先百度API，补充本地模型）
     all_results = baidu_results.copy()
-    # 补充本地模型结果（避免百度无结果时为空）
+    # 补充本地模型结果（避免百度API无结果时为空）
     if len(all_results) < top_n:
         for res in local_results:
             # 去重：不重复添加相同药材
@@ -222,10 +259,12 @@ def fusion_predict_herb_only(img_path, top_n=5):
     # 5. 按置信度排序，取Top-N
     all_results.sort(key=lambda x: x["score"], reverse=True)
     final_results = all_results[:top_n]
+    print(f"✅ 融合后结果：{[res['name'] for res in final_results]}")
 
     # 6. 兜底：如果无结果，返回本地模型Top5
     if not final_results:
         final_results = local_results[:top_n]
+        print(f"⚠️ 使用本地模型兜底结果：{[res['name'] for res in final_results]}")
 
     return final_results
 
@@ -292,130 +331,42 @@ def recognize_medicine_llm(image):
             for chunk in image.chunks():
                 destination.write(chunk)
         
-        # Use LLM-based recognition
+        # Use fusion prediction (local model + Baidu API)
         try:
-            # 直接执行用户的3.py文件
-            import subprocess
-            import json
+            # 直接使用融合预测函数，而不依赖3.py脚本
+            results = fusion_predict_herb_only(temp_path, top_n=5)
             
-            # 获取3.py文件的绝对路径
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            # 向上三级目录到项目根目录
-            project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
-            llm_dir = os.path.join(project_root, 'llm')
-            script_path = os.path.join(llm_dir, '3.py')
-            
-            # 确保目录存在
-            if not os.path.exists(llm_dir):
-                print(f"LLM directory not found: {llm_dir}")
-                raise Exception(f"LLM directory not found: {llm_dir}")
-            
-            # 确保脚本存在
-            if not os.path.exists(script_path):
-                print(f"3.py script not found: {script_path}")
-                raise Exception(f"3.py script not found: {script_path}")
-            
-            # 直接运行3.py文件，传递图片路径
-            result = subprocess.run(
-                [sys.executable, script_path, temp_path],
-                capture_output=True,
-                text=True,
-                cwd=project_root
-            )
-            
-            # 打印调试信息
-            print(f"3.py execution return code: {result.returncode}")
-            print(f"3.py stdout: {result.stdout}")
-            print(f"3.py stderr: {result.stderr}")
-            
-            # 解析结果
-            if result.returncode == 0 and result.stdout:
-                # 提取JSON部分
-                output = result.stdout
-                print(f"Raw output: {repr(output)}")
+            if results:
+                # Get top result
+                top_result = results[0]
+                name = top_result['name']
+                confidence = top_result['score'] / 100.0  # Convert to 0-1 scale
                 
-                # 找到JSON开始和结束的位置
-                start_idx = output.find('[')
-                end_idx = output.rfind(']') + 1
+                # Get candidates
+                candidates = [res['name'] for res in results]
                 
-                if start_idx != -1 and end_idx != -1:
-                    json_str = output[start_idx:end_idx]
-                    print(f"Extracted JSON string: {repr(json_str)}")
-                    try:
-                        results = json.loads(json_str)
-                        print(f"Parsed results: {results}")
-                        
-                        if results:
-                            # Get top result
-                            top_result = results[0]
-                            name = top_result['name']
-                            confidence = top_result['score'] / 100.0  # Convert to 0-1 scale
-                            
-                            # Get candidates
-                            candidates = [res['name'] for res in results]
-                            
-                            # Create result dictionary
-                            result_dict = {
-                                'name': name,
-                                'latin_name': '',
-                                'category': '未知',
-                                'functions': '待确认',
-                                'candidates': candidates,
-                                'sources': [{
-                                    'name': res['source'],
-                                    'confidence': res['score'],
-                                    'original': res.get('original', res['name'])
-                                } for res in results]
-                            }
-                            
-                            # Clean up temporary file
-                            if os.path.exists(temp_path):
-                                os.remove(temp_path)
-                            
-                            return result_dict, confidence
-                        else:
-                            # 空结果，使用基于颜色的识别
-                            print("LLM returned empty results, using color-based recognition")
-                            name, confidence = analyze_image_color_and_texture(temp_path)
-                            result_dict = {
-                                'name': name,
-                                'latin_name': '',
-                                'category': '未知',
-                                'functions': '待确认',
-                                'candidates': [name, '中药材', '草药', '中药饮片'],
-                                'sources': [{
-                                    'name': '颜色分析',
-                                    'confidence': confidence * 100,
-                                    'original': name
-                                }]
-                            }
-                            # Clean up temporary file
-                            if os.path.exists(temp_path):
-                                os.remove(temp_path)
-                            return result_dict, confidence
-                    except json.JSONDecodeError as e:
-                        print(f"JSON decode error: {e}")
-                        # 使用基于颜色的识别
-                        name, confidence = analyze_image_color_and_texture(temp_path)
-                        result_dict = {
-                            'name': name,
-                            'latin_name': '',
-                            'category': '未知',
-                            'functions': '待确认',
-                            'candidates': [name, '中药材', '草药', '中药饮片'],
-                            'sources': [{
-                                'name': '颜色分析',
-                                'confidence': confidence * 100,
-                                'original': name
-                            }]
-                        }
-                        # Clean up temporary file
-                        if os.path.exists(temp_path):
-                            os.remove(temp_path)
-                        return result_dict, confidence
+                # Create result dictionary
+                result_dict = {
+                    'name': name,
+                    'latin_name': '',
+                    'category': '未知',
+                    'functions': '待确认',
+                    'candidates': candidates,
+                    'sources': [{
+                        'name': res['source'],
+                        'confidence': res['score'],
+                        'original': res.get('original', res['name'])
+                    } for res in results]
+                }
+                
+                # Clean up temporary file
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+                
+                return result_dict, confidence
             else:
-                # 执行失败，使用基于颜色的识别
-                print("LLM execution failed, using color-based recognition")
+                # 空结果，使用基于颜色的识别
+                print("Fusion prediction returned empty results, using color-based recognition")
                 name, confidence = analyze_image_color_and_texture(temp_path)
                 result_dict = {
                     'name': name,
