@@ -240,7 +240,7 @@
         let currentOrigin = '';
         
         // 查看历史价格按钮点击事件
-        $('.view-history').on('click', function() {
+        $(document).on('click', '.view-history', function() {
             currentMedicine = $(this).data('medicine');
             currentSpecification = $(this).data('specification');
             currentOrigin = $(this).data('origin');
